@@ -1,3 +1,4 @@
+from asyncio import CancelledError
 from urllib.parse import urlencode
 import asyncio
 import json
@@ -37,6 +38,8 @@ class WebsocketTransport(BaseTransport):
                 await asyncio.gather(
                     self._recv_loop(websocket), self._send_loop(websocket)
                 )
+        except CancelledError:
+            raise
         except Exception as e:
             if not self.ready.done():
                 self.ready.set_exception(e)
@@ -72,6 +75,8 @@ class WebsocketTransport(BaseTransport):
                 )
                 await websocket.send(message_data)
                 message.sent.set_result(True)
+            except CancelledError:
+                raise
             except Exception as e:
                 message.sent.set_exception(e)
             logger.debug("sent")

@@ -1,4 +1,5 @@
 import asyncio
+from asyncio import CancelledError
 
 from .messages import ChannelEvents
 
@@ -41,6 +42,8 @@ class Channel:
         )
         try:
             response = await join.response()
+        except CancelledError:
+            raise
         except Exception as e:
             # TODO: this needs some work.
             raise ChannelJoinFailure() from e
@@ -56,6 +59,8 @@ class Channel:
         )
         try:
             response = await leave.response()
+        except CancelledError:
+            raise
         except Exception as e:
             # TODO: this needs some work.
             raise ChannelLeaveFailure() from e
